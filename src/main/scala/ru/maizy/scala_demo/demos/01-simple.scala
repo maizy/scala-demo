@@ -1,12 +1,12 @@
-package main.scala.ru.maizy.scala_demo.demos
-
-import main.scala.ru.maizy.scala_demo.{Settings, Demo}
-import java.util.Date
-
+package ru.maizy.scala_demo.demos
 /**
  * Copyright (c) Nikita Kovaliov, maizy.ru, 2013
  * See LICENSE.txt for details.
  */
+
+import ru.maizy.scala_demo.{Settings, Demo}
+import java.util.Date
+
 class PrintDate extends Demo {
   val name = "print date"
   override val description = "prints current date and time"
