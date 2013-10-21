@@ -14,13 +14,17 @@ object Launcher extends App {
     val settings = new Settings()
 
     val demos = new ListBuffer[Demo]
+
     demos += new PrintSettings
     demos += new PrintDate
+
     demos += new SeqProcessing
     demos += new ArrayDemo
     demos += new ListDemo
     demos += new ListMethods
+    demos += new TuplesDemo
     demos += new ForAndYield
+    
     val collection = new DemoCollection(
       demos.toList,
       (1 to demos.length + 2).toIterator

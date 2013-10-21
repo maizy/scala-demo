@@ -97,3 +97,19 @@ class ListMethods extends Demo {
     }
   }
 }
+
+
+class TuplesDemo extends Demo {
+  val name = "tuples demo"
+
+  def run(settings: Settings): Unit = {
+    demoBlock("tuples") {
+      val a = (1999, "N")
+      println(a)
+      println(a._1 == 1999) //true, tuples 1-based !
+
+      val (year, letter) = a //simple pattern matching. "(" & ")" required !
+      println(s"Year: $year letter: $letter")
+    }
+  }
+}
