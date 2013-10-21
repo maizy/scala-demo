@@ -17,12 +17,13 @@ object Launcher extends App {
 
     demos += new PrintSettings
     demos += new PrintDate
-
     demos += new SeqProcessing
     demos += new ArrayDemo
     demos += new ListDemo
     demos += new ListMethods
     demos += new TuplesDemo
+    demos += new SetImmuttableDemo
+    demos += new SetMuttableDemo
     demos += new ForAndYield
     
     val collection = new DemoCollection(
