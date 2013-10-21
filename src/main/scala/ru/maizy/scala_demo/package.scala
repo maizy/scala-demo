@@ -32,8 +32,11 @@ package object scala_demo {
     if (name.isDefined) {
       println(div)
       println(name.get)
+      println("-" * 5)
+    } else {
+      println(div)
     }
-    println(div)
+
     blockBody
     println(div)
     println()

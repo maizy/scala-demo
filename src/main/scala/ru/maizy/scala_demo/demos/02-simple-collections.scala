@@ -75,11 +75,12 @@ class ListMethods extends Demo {
   def run(settings: Settings): Unit = {
     val rabbitNames = List(
       "Розмаринчик", "Горицветик", "Пируэтта",
-      "Одуванчик")
+      "Одуванчик", "Сыроежик")
     demoBlock("list filtering") {
 
       println("Drop 2: " + rabbitNames.drop(2)) // List(Пируэтта, Одуванчик)
-      println("DropRight 3: " + rabbitNames.drop(3)) // List(Одуванчик)
+      println("DropRight 3: " + rabbitNames.drop(3)) // List(Одуванчик, Сыроежик)
+      println("Remove: " + rabbitNames.filterNot(_.toLowerCase.contains("о")))
     }
 
     demoBlock("list checking") {
@@ -87,6 +88,12 @@ class ListMethods extends Demo {
       println(rabbitNames.filterNot(_.length % 2 == 0))
       println(rabbitNames.count(_.length % 2 == 0)) // 2
       println(rabbitNames.exists(n => n.length % 2 == 0 && n(0) == 'Г')) // true
+      println(rabbitNames.forall(_.length <= 10))
+    }
+
+    demoBlock("Ordering") {
+      println(rabbitNames.sorted)
+      println(rabbitNames.sortWith((a, b) => a.last < b.last))
     }
   }
 }
