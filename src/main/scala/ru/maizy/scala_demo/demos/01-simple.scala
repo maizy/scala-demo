@@ -12,7 +12,7 @@ class PrintDate extends Demo {
   override val description = "prints current date and time"
 
   def run(settings: Settings): Unit = {
-    println(new Date toString)
+    println(new Date().toString)
     //TODO: is there any dateTime lib for scala, better than java std lib?
   }
 }
