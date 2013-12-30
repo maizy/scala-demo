@@ -20,6 +20,7 @@ object Launcher extends App {
     demos += new ArrayDemo
     demos += new ListDemo
     demos += new ListMethods
+    demos += new ForAndYield
     val collection = new DemoCollection(
       demos.toList,
       (1 to demos.length + 2).toIterator

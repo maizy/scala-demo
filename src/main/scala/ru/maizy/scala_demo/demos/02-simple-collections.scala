@@ -36,7 +36,9 @@ class ArrayDemo extends Demo {
       stations(0) = "Krukovo"
       stations(1) = "Malino"
       stations(2) = "Firsanovskaya"
-      //not a preffer way in init Array
+      //not a preffer way to init Array, just for demonstation
+
+      //TODO: ex of preffer way
 
       def printStations() = println(
         "Stations: " + stations.toList.mkString(", "))
