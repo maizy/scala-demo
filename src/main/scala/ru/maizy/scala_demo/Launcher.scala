@@ -25,7 +25,8 @@ object Launcher extends App {
     demos += new SetImmuttableDemo
     demos += new SetMuttableDemo
     demos += new ForAndYield
-    
+    demos += new FuturesDemo
+
     val collection = new DemoCollection(
       demos.toList,
       (1 to demos.length + 2).toIterator
