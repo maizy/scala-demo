@@ -9,14 +9,48 @@ import ru.maizy.scala_demo.{Settings, Demo}
 import ru.maizy.scala_demo.demoBlock
 
 class FuturesDemo extends Demo {
-  val name = "scala.concurent.Future"
+  val name = "scala.concurent.Future & PartialFunction"
 
   def run(settings: Settings): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    demoBlock("simple future callbacks") {
 
-      class MyError(msg: String) extends Exception(msg)
-      class MyError2(msg: String) extends Exception(msg)
+    class MyError(msg: String) extends Exception(msg)
+    class MyError2(msg: String) extends Exception(msg)
+
+    def universalCallbackBuilder(label: String): PartialFunction[Any, Unit] =
+      {
+        case i: Int if i >= 1 => println(s"$label: OK >= 1: $i")
+        case e: MyError => println(s"$label: $label: My error: $e")
+      }
+
+    val universalCallback: PartialFunction[Any, Unit] = universalCallbackBuilder("")
+
+    val myErrorMatchers: PartialFunction[Exception, Unit] = {
+      case e: MyError => println(s"My error: $e")
+    }
+
+    val intWithConditions: PartialFunction[Int, Unit] = {
+      case i if i >= 4 => println(s"Int: >=4 - $i")
+    }
+
+    val alwaysMatchCallback: PartialFunction[Any, Unit] = {
+      case other => println(s"Ooops: $other")
+    }
+
+    demoBlock("partial functions") {
+
+      println(s"intCallback.isDefinedAt(7)=${intWithConditions.isDefinedAt(7)}") //true
+      println(s"intCallback.isDefinedAt(0)=${intWithConditions.isDefinedAt(0)}") //false
+      //println(s"intCallback.isDefinedAt(string)=${intWithConditions.isDefinedAt("string")}")  //compile error: type missmatch
+
+      //PartialFunction[Any, Unit] matching everything
+      println(s"universalCallback.isDefinedAt(7)=${universalCallback.isDefinedAt(7)}") //true
+      println(s"universalCallback.isDefinedAt(0)=${universalCallback.isDefinedAt(0)}") //false
+      println(s"universalCallback.isDefinedAt(some string)=${universalCallback.isDefinedAt("some string")}") //false
+    }
+
+
+    demoBlock("simple future callbacks") {
 
       val simpleFuture: Future[Int] = Future {
         println("simpleFuture compute"); 5
@@ -26,22 +60,12 @@ class FuturesDemo extends Demo {
         println("otherFuture compute"); 3
       }
 
+      simpleFuture onSuccess universalCallbackBuilder("simpleFuture")
+      simpleFuture onSuccess universalCallbackBuilder("simpleFuture #2")
+      simpleFuture onFailure universalCallbackBuilder("simpleFuture onFailure")
 
-      val callback = PartialFunction[Any, Unit] {
-        case i: Int if i >= 4 => println(s"OK - $i")
-        case e: MyError => println(s"MyError - $e")
-      }
-
-      val alwaysMatchCallback = PartialFunction[Any, Unit] {
-        case other => println(s"Oops something wrong: $other")
-      }
-
-      simpleFuture onSuccess callback
-      simpleFuture onSuccess callback
-      simpleFuture onFailure callback
-
-      otherFuture onSuccess callback
-      otherFuture onFailure callback
+      otherFuture onSuccess universalCallbackBuilder("otherFuture")
+      otherFuture onFailure universalCallbackBuilder("otherFuture onFailure")
 
       val errorFuture: Future[Int] = Future {
         throw new MyError("bubu")
@@ -51,31 +75,13 @@ class FuturesDemo extends Demo {
         throw new MyError2("bubu")
       }
 
-      errorFuture onSuccess callback
-      errorFuture onFailure callback
-      errorFuture onFailure callback
+      errorFuture onSuccess universalCallbackBuilder("errorFuture")
+      errorFuture onFailure universalCallbackBuilder("errorFuture onFailure")
+      errorFuture onFailure universalCallbackBuilder("errorFuture onFailure2")
 
-      unknownErrorFuture onSuccess callback
-      unknownErrorFuture onFailure (callback orElse alwaysMatchCallback)
-    }
-
-    demoBlock("future successful operation") {
-      val f3: Future[Int] = Future {
-        println("f3 compute"); 5
-      }
-      println(s"f3.isCompleted = ${f3.isCompleted}")
-
-      val f4: Future[Int] = Future.successful {
-        println("f4 compute"); 7
-      }
-      println(s"f4.isCompleted = ${f4.isCompleted}")
-
-      val printResOfInt: PartialFunction[Int, Unit] = {
-        case i: Int => println(s"$i")
-      }
-
-      f3 onSuccess printResOfInt
-      f4 onSuccess printResOfInt
+      unknownErrorFuture onSuccess universalCallbackBuilder("unknownErrorFuture")
+      //unknownErrorFuture onFailure (universalCallback orElse alwaysMatchCallback)
+      unknownErrorFuture onFailure universalCallbackBuilder("unknownErrorFuture onFailure")
     }
 
   }
