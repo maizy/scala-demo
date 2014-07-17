@@ -116,6 +116,40 @@ class FuturesDemo extends Demo {
       sleep(sec = 4)
     }
 
+    demoBlock("restore failed future and make some response") {
+      class Res(val msg: String)
+      class MyException(msg: String) extends Exception(msg)
+      def outputRes(r: Res) = println(r.msg)
+
+      val success: Future[String] = Future.successful{ "some result" }
+      val failure: Future[String] = Future.failed(new MyException("something wrong"))
+      val unknownFailure: Future[String] = Future.failed(new Exception("all wrong"))
+
+      def processAsyncRes(f: Future[String]) = {
+        f map (r => outputRes(new Res(s"result 1: $r")))
+      }
+
+      def processAsyncResAndError(f: Future[String]) = {
+        f recover {
+          case e: MyException => s"Error: $e"
+          case e => s"Unexpected Error: $e"
+        }
+
+        f map (r => outputRes(new Res(s"result2: $r")))
+      }
+
+      processAsyncRes(success)
+      processAsyncRes(failure)
+      processAsyncRes(failure)
+
+      processAsyncResAndError(success)
+      processAsyncResAndError(failure)
+      processAsyncResAndError(unknownFailure)
+
+      sleep(sec = 2)
+
+    }
+
     demoBlock("Orphan futures") {
 
       val returnUnmatchedInt: Future[Int] = Future {
