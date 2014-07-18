@@ -89,6 +89,33 @@ class FuturesDemo extends Demo {
       sleep(sec = 1.5)
     }
 
+    demoBlock("join Seq[Future[Seq[A]]] to Future[Seq[A]]") {
+
+      case class Res(name: String)
+
+      val f1: Future[Seq[Res]] = Future {
+        List(Res("red"), Res("green"))
+      }
+
+      val f2: Future[Seq[Res]] = Future {
+        List(Res("yellow"), Res("blue"))
+      }
+
+      val res: Future[Seq[Seq[Res]]]= Future.sequence(List(f1, f2))
+      res onSuccess {
+        case r => println(s"r: $r, r.flatten: ${r.flatten}")
+      }
+
+      val flatRes: Future[Seq[Res]] = res map {case r => r.flatten}
+      flatRes onSuccess {
+        case r => println(s"flatten res: $r")
+      }
+
+      Await.ready(res, 2 seconds)
+      sleep(sec = 0.5)
+
+    }
+
     demoBlock("errors in future") {
       val errorFuture: Future[Int] = Future {
         throw new MyError("zooo")
