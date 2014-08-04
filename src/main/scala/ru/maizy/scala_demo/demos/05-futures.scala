@@ -244,3 +244,101 @@ class ErrorsInFutureDemo extends Demo {
     }
   }
 }
+
+
+class FutureChainsDemo extends Demo {
+  val name = "Future chains"
+
+  def run(settings: Settings): Unit = {
+    new FuturesDemoData {
+      import scala.concurrent.ExecutionContext.Implicits.global
+
+      case class Res(status: String)
+
+      val firstLevelSuccessfulFuture: Future[String] = Future.successful("ok")
+      val firstLevelFailedFuture: Future[String] = Future.failed(new MyError("oh, no!"))
+
+      def printFutureResults(label: String): PartialFunction[Any, Unit] =
+        {
+          case res => println(s"$label: $res")
+        }
+
+      def showResults[T](func: (Future[String] => Future[T])) {
+        val secondLevelSuccessful: Future[T] = func(firstLevelSuccessfulFuture)
+        val secondLevelFailure: Future[T] = func(firstLevelFailedFuture)
+        secondLevelSuccessful onComplete printFutureResults("3rd level successful")
+        secondLevelFailure onComplete printFutureResults("3rd level failure")
+      }
+
+      demoBlock("transform") {
+      val processFuture = (f: Future[String]) => f transform(
+        {
+          case res: String => Res(res)
+        },
+        {
+          case e: Throwable => new Exception(s"Overwrited exc, original exceptin was: $e")
+        }
+      )
+
+        showResults(processFuture)
+        sleep(sec = 0.5)
+      }
+
+      demoBlock("transform with exceptions inside") {
+        val processFuture = (f: Future[String]) => f transform(
+          {
+            case res: String => throw new Exception("Unexcpected exception in success transform")
+          },
+          {
+            case e: Throwable => new Exception(s"Overwrited exc, original exceptin was: $e")
+          }
+        )
+
+        showResults(processFuture)
+        sleep(sec = 0.5)
+      }
+
+      demoBlock("map") {
+        val processFuture = (f: Future[String]) => f map {
+          case res: String => Res(res)
+        }
+
+        // Exceptions passed to future chain without processing
+        showResults(processFuture)
+        sleep(sec = 0.5)
+      }
+
+      demoBlock("map with exception inside") {
+        val processFuture = (f: Future[String]) => f map {
+          case res: String => throw new Exception("Unexcpected exception in success transform")
+        }
+
+        // Exceptions passed to future chain without processing
+        showResults(processFuture)
+        sleep(sec = 0.5)
+      }
+
+      demoBlock("flatMap") {
+        val processFuture = (f: Future[String]) => f flatMap {
+          //instead of map should return Future[A]
+          res => Future.successful(Res(res + res))
+        }
+
+        // Exceptions passed trought future chain without processing
+        showResults(processFuture)
+        sleep(sec = 0.5)
+      }
+
+      demoBlock("process only failure case") {
+        val processFuture = (f: Future[String]) => f recover {
+          // Actually not "recover", but other exception throwed
+          case e: MyError => throw new Exception(s"Wrap exc: $e")
+        }
+
+        showResults(processFuture)
+        sleep(sec = 0.5)
+      }
+    }
+  }
+
+}

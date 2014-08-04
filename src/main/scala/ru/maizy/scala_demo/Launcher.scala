@@ -29,6 +29,7 @@ object Launcher extends App {
     demos += new PartialFunctionsDemo
     demos += new BasicFutureDemo
     demos += new ErrorsInFutureDemo
+    demos += new identity
 
     val collection = new DemoCollection(
       demos.toList,
