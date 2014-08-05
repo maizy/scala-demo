@@ -1,0 +1,67 @@
+package ru.maizy.scala_demo.demos
+/**
+ * Copyright (c) Nikita Kovaliov, maizy.ru, 2013
+ * See LICENSE.txt for details.
+ */
+
+import ru.maizy.scala_demo.{Settings, Demo}
+import ru.maizy.scala_demo.demoBlock
+
+import scala.util.matching.Regex
+
+class RegexpDemo extends Demo {
+  val name: String = "regexps"
+
+  def run(settings: Settings) {
+    //rich string method
+    val supapupaRegexp: Regex = """(s|p)uper""".r
+    //constructor form, addition group names may be provided
+    val otherIterator = new Regex("""([no]+)\s+(\d+)""", "label", "value")
+
+    demoBlock("Simple regexp, findFirstIn") {
+
+      val matchString: Option[String] = supapupaRegexp findFirstIn "super"
+      println(matchString)
+      val processedMatch: Option[String] = (supapupaRegexp findFirstIn "puper") map {
+        v => v + v
+      }
+      println(processedMatch)
+    }
+
+    demoBlock("findAllIn") {
+      //use as simple Iterator[String]
+      val allRes: Iterator[String] = supapupaRegexp findAllIn "super puper blabla"
+      allRes foreach println
+
+      //use as specialiterator
+      val customIter: Regex.MatchIterator = otherIterator findAllIn "n 6, nnnoo 77, ooon 55"
+      val matchIter: Iterator[Regex.Match] = customIter.matchData
+      matchIter foreach {
+        r => {
+          println(s"groupNames: ${r.groupNames}")
+          println(s"groupCount: ${r.groupCount}")
+          println(s"subgroups: ${r.subgroups}")
+          println(s"group(0): ${r.group(0)}")
+          println(s"group(1): ${r.group(1)}")
+          println(s"group(2): ${r.group(2)}")
+          println(s"group(label): ${r.group("label")}")
+          println(s"group(value): ${r.group("value")}")
+          try {
+            println(r.group(777))
+          } catch {
+            case e: ArrayIndexOutOfBoundsException => println(e)
+          }
+
+          try {
+            println(r.group("wtf"))
+          } catch {
+            case e: NoSuchElementException => println(e)
+          }
+          println()
+        }
+      }
+    }
+
+    //TODO: patmatch style
+  }
+}
