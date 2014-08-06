@@ -62,6 +62,30 @@ class RegexpDemo extends Demo {
       }
     }
 
-    //TODO: patmatch style
+    demoBlock("full match patterns") {
+      val fullMatch = """^(a|b)\d+$""".r
+      println(fullMatch findFirstIn "a334")
+      println(fullMatch findFirstIn "a334b66")
+    }
+
+    val withDashRegexp = """(\d+)-(\d+)""".r
+    val withDotRegexp = """(\d+).(\d+).(\d{1})""".r
+
+    demoBlock("Pattern match style") {
+      for (s <- List("5-8", "4.644.8")) {
+        s match {
+          case withDashRegexp(first, secound) => println(s"with dash = f: $first, s: $secound")
+          case withDotRegexp(first, secound, third) => println(s"with dot = f: $first, s: $secound, t: $third")
+        }
+      }
+
+      try {
+        "5.4" match {
+          case withDashRegexp(first, secound) => println("??")
+        }
+      } catch {
+        case e: MatchError => println(e)
+      }
+    }
   }
 }
