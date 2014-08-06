@@ -15,8 +15,6 @@ class RegexpDemo extends Demo {
   def run(settings: Settings) {
     //rich string method
     val supapupaRegexp: Regex = """(s|p)uper""".r
-    //constructor form, addition group names may be provided
-    val otherIterator = new Regex("""([no]+)\s+(\d+)""", "label", "value")
 
     demoBlock("Simple regexp, findFirstIn") {
 
@@ -28,13 +26,25 @@ class RegexpDemo extends Demo {
       println(processedMatch)
     }
 
+    //constructor form, addition group names may be provided
+    val otherRegexp = new Regex("""([no]+)\s+(\d+)""", "label", "value")
+
+    demoBlock("findFirstMatchIn") {
+      val maybeRes: Option[Regex.Match] = otherRegexp findFirstMatchIn "nooo 77"
+      for (res <- maybeRes) {
+        println("all match: "+ res.group(0))
+        println("label: "+ res.group(1)) // by index
+        println("value: "+ res.group("value")) //by code
+      }
+    }
+
     demoBlock("findAllIn") {
       //use as simple Iterator[String]
       val allRes: Iterator[String] = supapupaRegexp findAllIn "super puper blabla"
       allRes foreach println
 
       //use as specialiterator
-      val customIter: Regex.MatchIterator = otherIterator findAllIn "n 6, nnnoo 77, ooon 55"
+      val customIter: Regex.MatchIterator = otherRegexp findAllIn "n 6, nnnoo 77, ooon 55"
       val matchIter: Iterator[Regex.Match] = customIter.matchData
       matchIter foreach {
         r => {
