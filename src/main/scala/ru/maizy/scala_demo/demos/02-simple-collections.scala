@@ -7,6 +7,7 @@ package ru.maizy.scala_demo.demos
 import ru.maizy.scala_demo.{Settings, Demo}
 import ru.maizy.scala_demo.demoBlock
 
+import scala.collection.mutable
 
 class SeqProcessing extends Demo {
   val name: String = "seq processing by functional code"
@@ -110,6 +111,24 @@ class TuplesDemo extends Demo {
 
       val (year, letter) = a //simple pattern matching. "(" & ")" required !
       println(s"Year: $year letter: $letter")
+    }
+  }
+}
+
+
+class MapDemo extends Demo {
+  val name = "map demo"
+
+  def run(settings: Settings): Unit = {
+    //TODO: immutable map demos, foreach, map, for ...
+    demoBlock("mutable map") {
+      case class HumanReadable(eng: String)
+      val mutableMap = mutable.Map[String, HumanReadable]()
+      mutableMap("fff") = HumanReadable("white")
+      mutableMap("000") = HumanReadable("black")
+      println(mutableMap)
+      println("fff in mutable map: " + (mutableMap contains "fff"))
+      println("0f0 in mutable map: " + (mutableMap contains "0f0"))
     }
   }
 }

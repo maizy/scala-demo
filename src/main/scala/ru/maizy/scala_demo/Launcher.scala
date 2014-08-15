@@ -22,6 +22,7 @@ object Launcher extends App {
     demos += new ListDemo
     demos += new ListMethods
     demos += new TuplesDemo
+    demos += new MapDemo
     demos += new SetImmuttableDemo
     demos += new SetMuttableDemo
     demos += new ForAndYield
