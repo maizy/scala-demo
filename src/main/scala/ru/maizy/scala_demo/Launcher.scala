@@ -32,6 +32,7 @@ object Launcher extends App {
     demos += new ErrorsInFutureDemo
     demos += new FutureChainsDemo
     demos += new RegexpDemo
+    demos += new TraitWithTypeParamDemo
 
     val collection = new DemoCollection(
       demos.toList,
