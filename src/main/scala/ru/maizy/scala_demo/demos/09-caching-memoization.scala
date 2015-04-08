@@ -6,6 +6,7 @@ package ru.maizy.scala_demo.demos
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.util.{Try, Failure, Success}
+import scala.util.Random
 
 import ru.maizy.scala_demo.{Settings, Demo}
 import ru.maizy.scala_demo.demoBlock
@@ -76,29 +77,56 @@ object DelayedFuture {
 
 class TraitWithTypeParamDemo extends Demo {
   val name: String = "trait with type param"
+  var randGenerator = new Random(777)
 
   def run(settings: Settings) {
     case class User(name: String, email: String)
-    case class Repos(name: String, url: String)
+    case class Repo(name: String, url: String)
 
 
     import scala.concurrent.ExecutionContext.Implicits.global
 
     type Users = Seq[User]
+    type Repos = Seq[Repo]
     class FetchFailed(message: String) extends Exception(message)
 
-    demoBlock("cache as mixins") {
-      abstract class Resource {
-        type R
-        def getData: Future[R]
+
+    demoBlock("based on Memo from https://github.com/pathikrit/scalgos") {
+
+      case class Memo[I, K, O](kf: I => K, f: I => O) extends (I => O) {
+        import scala.collection.mutable.{Map => Dict}
+        val cache = Dict.empty[K, O]
+        override def apply(x: I) = cache getOrElseUpdate (kf(x), f(x))
       }
 
-      class UserResource(
-          val group: String
-        ) extends Resource {
-        type R = Users
+      val myFunc = (group: String, limit: Int) => {
+        List(
+          s"group: $group: ${randGenerator.nextInt()}}",
+          s"Limit: $limit"
+        )
+      }
 
-        def getData: Future[R] = {
+      println(myFunc("ex", 23))
+
+      val memoized = new Memo[(String, Int), String, List[String]](
+        {
+          case (group: String, limit: Int) => s"gr-${group}_lm-$limit"
+        },
+        myFunc.tupled
+      )
+      println(memoized("s", 5))
+      println(memoized("s", 5))
+
+    }
+
+
+
+    demoBlock("AsyncCache wrapper") {
+      trait Resource
+
+      class UserResource extends Resource {
+
+        def getUsersByGroup(group: String): Future[Users] = {
           if (group == "ex")
           {
             DelayedFuture(0.5.seconds) {
@@ -115,24 +143,70 @@ class TraitWithTypeParamDemo extends Demo {
         }
       }
 
-      class Client {
-        def getUsers(group: String): Future[Users] = {
-          //FIXME: statefull resource
-          val resource = new UserResource(group)
-          resource.getData
+      class RepoResource extends Resource {
+        def getRepos(user: String, limit: Int): Future[Repos] = {
+            DelayedFuture(0.5.seconds) {
+              if (limit > 10) {
+                throw new FetchFailed("limit greats than 10")
+              } else {
+                List(
+                  Repo(s"$user/some", url = s"example.com/$user/some.git"),
+                  Repo(s"$user/some_more", url = s"sub.example.com/$user/abcdef.git")
+                )
+              }
+          }
         }
       }
 
-      val printRes: PartialFunction[Try[Users], Unit] = {
-        case Success(users: Users) => println(users)
+      case class AsyncCache[I, K, R](
+          func: I => Future[R],
+          computeKey: I => K,
+          ttl: Duration = 10.minutes
+        ) extends (I => Future[R])
+      {
+        private val cache = scala.collection.mutable.Map[K, R]()
+
+        override def apply(x: I): Future[R] = {
+          val key = computeKey(x)
+          println(s"Computed key: $x = $key")
+          func(x)
+        }
+      }
+      class Client {
+        lazy val userResource = new UserResource
+        lazy val repoResource = new RepoResource
+        lazy val userCache = new AsyncCache[String, String, Users](
+          userResource.getUsersByGroup,
+          computeKey = (x: String) => s"user-group_$x",
+          ttl = 5.seconds
+        )
+//        lazy val reposCache = new AsyncCache[[String, Int], String, Repos](
+//          repoResource.getRepos,
+//          computeKey = (group: String, limit: Int) => s"group_$group-limit_$limit",
+//          ttl = 5.seconds
+//        )
+        lazy val cachedGetReposResource = repoResource.getRepos _
+
+        def getUsers(group: String): Future[Users] =
+          userCache(group)
+
+        def getRepos(group: String, limit: Int): Future[Repos] =
+          cachedGetReposResource(s"$group/user", limit)
+      }
+
+      val printRes: PartialFunction[Try[Any], Unit] = {
+        case Success(res: Any) => println(res)
         case Failure(ex: Throwable) => println(s"Error: $ex")
       }
 
-      val client = new Client()
-      val futures = List(
+      val client = new Client
+      val futures = List[Future[Any]](
         client.getUsers("ex"),
         client.getUsers("ex"),
-        client.getUsers("ex2")
+        client.getUsers("ex"),
+        client.getUsers("ex2"),
+        client.getRepos("gr1", 5),
+        client.getRepos("gr2", 15)
       )
 
       futures.foreach(_.onComplete(printRes))
