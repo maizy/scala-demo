@@ -38,8 +38,14 @@ object Launcher extends App {
       (1 to demos.length + 2).toIterator
     )
 
-    print(demosLister(collection))
-    print("Run demo #")
-    collection.run(readInt(), settings)
+    if (args.length > 0) {
+      val num = args(0).toInt
+      println(s"Run demo #$num")
+      collection.run(num, settings)
+    } else {
+      print(demosLister(collection))
+      print("Run demo #")
+      collection.run(readInt(), settings)
+    }
   }
 }
