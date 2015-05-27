@@ -3,7 +3,7 @@ package ru.maizy.scala_demo.demos
  * Copyright (c) Nikita Kovaliov, maizy.ru, 2013
  * See LICENSE.txt for details.
  */
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, Future, Promise, ExecutionContext}
 import scala.concurrent.duration._
 import scala.util.{Try, Failure, Success}
 import scala.util.Random
@@ -11,69 +11,6 @@ import scala.util.Random
 import ru.maizy.scala_demo.{Settings, Demo}
 import ru.maizy.scala_demo.demoBlock
 
-// based on http://stackoverflow.com/a/16363444/239268
-// easily may be replaced by akka.pattern.after
-// but here I don't need any additional dependancy
-object DelayedFuture {
-  import java.util.{Timer, TimerTask}
-  import java.util.Date
-  import scala.concurrent._
-
-  protected var maybeTimer: Option[Timer] = None
-
-  def startTimer() {
-    stopTimer()
-    maybeTimer = Some(new Timer)
-  }
-  
-  def timer: Timer =
-    maybeTimer.getOrElse {
-      startTimer()
-      maybeTimer.get
-    }
-
-  def stopTimer() {
-    maybeTimer foreach {_.cancel()}
-    maybeTimer = None
-  }
-
-  startTimer()
-
-  private def makeTask[T](body: => T)(schedule: TimerTask => Unit)(implicit ctx: ExecutionContext): Future[T] = {
-    val prom = Promise[T]()
-    schedule(
-      new TimerTask {
-        def run() {
-          // IMPORTANT: The timer task just starts the execution on the passed
-          // ExecutionContext and is thus almost instantaneous (making it
-          // practical to use a single  Timer - hence a single background thread).
-          ctx.execute(
-            new Runnable {
-              def run() {
-                try {
-                  prom.success(body)
-                } catch {
-                  case ex: Throwable => prom.failure(ex)
-                }
-              }
-            }
-          )
-        }
-      }
-    )
-    prom.future
-  }
-
-  def apply[T](period: Long)(body: => T)(implicit ctx: ExecutionContext): Future[T] =
-    makeTask(body)(timer.schedule(_, period))
-
-  def apply[T](date: Date)(body: => T)(implicit ctx: ExecutionContext): Future[T] =
-    makeTask(body)(timer.schedule(_, date))
-
-  def apply[T](duration: Duration)(body: => T)(implicit ctx: ExecutionContext): Future[T] =
-    // NOTE: will throw IllegalArgumentException for infinite durations
-    makeTask(body)(timer.schedule(_, duration.toMillis))
-}
 
 class TraitWithTypeParamDemo extends Demo {
   val name: String = "trait with type param"
@@ -90,6 +27,7 @@ class TraitWithTypeParamDemo extends Demo {
     type Repos = Seq[Repo]
     class FetchFailed(message: String) extends Exception(message)
 
+    val sys = akka.actor.ActorSystem("demo")
 
     demoBlock("based on Memo from https://github.com/pathikrit/scalgos") {
 
@@ -126,36 +64,33 @@ class TraitWithTypeParamDemo extends Demo {
 
       class UserResource extends Resource {
 
-        def getUsersByGroup(group: String): Future[Users] = {
-          if (group == "ex")
-          {
-            DelayedFuture(0.5.seconds) {
+        def getUsersByGroup(group: String): Future[Users] =
+          if (group == "ex") {
+            Future.successful(
               List(
-                User("Vasya", "vasya@example.com"),
+                User(s"Vasya ${randGenerator.nextInt()}", "vasya@example.com"),
                 User("Masha", "masha@example.com")
               )
-            }
+            )
           } else {
-            DelayedFuture(0.8.seconds) {
-              throw new FetchFailed(s"Group $group doesn't exists")
-            }
+            Future.failed(new FetchFailed(s"Group $group doesn't exists"))
           }
-        }
       }
 
       class RepoResource extends Resource {
-        def getRepos(user: String, limit: Int): Future[Repos] = {
-            DelayedFuture(0.5.seconds) {
-              if (limit > 10) {
-                throw new FetchFailed("limit greats than 10")
-              } else {
-                List(
-                  Repo(s"$user/some", url = s"example.com/$user/some.git"),
-                  Repo(s"$user/some_more", url = s"sub.example.com/$user/abcdef.git")
-                )
-              }
+
+        def getRepos(user: String, limit: Int): Future[Repos] =
+          if (limit > 10) {
+            Future.failed(new FetchFailed("limit greats than 10"))
+          } else {
+            Future.successful(
+              List(
+                Repo(s"$user/some ${randGenerator.nextInt()}}", url = s"example.com/$user/some.git"),
+                Repo(s"$user/some_more", url = s"sub.example.com/$user/abcdef.git")
+              )
+            )
           }
-        }
+
       }
 
       case class AsyncCache[I, K, R](
@@ -164,54 +99,91 @@ class TraitWithTypeParamDemo extends Demo {
           ttl: Duration = 10.minutes
         ) extends (I => Future[R])
       {
-        private val cache = scala.collection.mutable.Map[K, R]()
+        private val cache = scala.collection.concurrent.TrieMap[K, R]()
 
         override def apply(x: I): Future[R] = {
           val key = computeKey(x)
-          println(s"Computed key: $x = $key")
-          func(x)
+          val fromCache: Option[R] = cache.get(key)
+          val self = this
+          if (fromCache.isDefined) {
+            println(s"$key: in cache")
+            Future.successful(fromCache.get)
+          } else {
+            println(s"$key: do request")
+            val future = func(x)
+
+            future onComplete {
+
+                case Success(v: R) =>
+                  println(s"$key: set data to cache")
+                  self.synchronized {
+                    cache(key) = v
+                  }
+
+                case Failure(e: Throwable) =>
+                  println(s"$key: not in cache remove key from cache")
+                  self.synchronized {
+                    cache.remove(key)
+                  }
+              }
+            future
+          }
         }
       }
+
+
       class Client {
         lazy val userResource = new UserResource
         lazy val repoResource = new RepoResource
-        lazy val userCache = new AsyncCache[String, String, Users](
+        lazy val cachedGetUsersByGroup = new AsyncCache[String, String, Users](
           userResource.getUsersByGroup,
           computeKey = (x: String) => s"user-group_$x",
-          ttl = 5.seconds
+          ttl = 60.seconds
         )
-//        lazy val reposCache = new AsyncCache[[String, Int], String, Repos](
-//          repoResource.getRepos,
-//          computeKey = (group: String, limit: Int) => s"group_$group-limit_$limit",
-//          ttl = 5.seconds
-//        )
+        lazy val reposCache = new AsyncCache[(String, Int), String, Repos](
+          (repoResource.getRepos _).tupled,
+          computeKey = {
+            case (group: String, limit: Int) => s"group_$group-limit_$limit"
+          },
+          ttl = 60.seconds
+        )
         lazy val cachedGetReposResource = repoResource.getRepos _
 
         def getUsers(group: String): Future[Users] =
-          userCache(group)
+          cachedGetUsersByGroup(group)
 
         def getRepos(group: String, limit: Int): Future[Repos] =
           cachedGetReposResource(s"$group/user", limit)
       }
 
       val printRes: PartialFunction[Try[Any], Unit] = {
-        case Success(res: Any) => println(res)
+        case Success(res: Any) => println(s"Res: $res")
         case Failure(ex: Throwable) => println(s"Error: $ex")
       }
 
       val client = new Client
-      val futures = List[Future[Any]](
-        client.getUsers("ex"),
-        client.getUsers("ex"),
-        client.getUsers("ex"),
-        client.getUsers("ex2"),
-        client.getRepos("gr1", 5),
-        client.getRepos("gr2", 15)
-      )
+      val requestsSeq = List(
+          List[Future[Any]](
+            client.getUsers("ex"),
+            client.getUsers("ex"),
+            client.getUsers("ex")
+    //        client.getUsers("ex2"),
+    //        client.getRepos("gr1", 5),
+    //        client.getRepos("gr1", 5),
+    //        client.getRepos("gr2", 12),
+    //        client.getRepos("gr2", 12)
+          ),
 
-      futures.foreach(_.onComplete(printRes))
-      futures.foreach(Await.ready(_, 3.second))
-      DelayedFuture.stopTimer()
+          List[Future[Any]](
+            client.getUsers("ex")
+          )
+      )
+      for ((seq, i) <- requestsSeq.zipWithIndex) {
+        println(s"step $i")
+        seq.foreach(_.onComplete(printRes))
+        Await.ready(Future.sequence(seq), Duration.Inf)
+      }
+
     }
 
   }

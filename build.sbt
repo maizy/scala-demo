@@ -5,5 +5,6 @@ version := "0.0.1-SNAPSHOT"
 scalaVersion := "2.10.2"
 
 libraryDependencies ++= Seq(
-  "com.typesafe" % "config" % "1.0.2"
+  "com.typesafe" % "config" % "1.0.2",
+  "com.typesafe.akka" %% "akka-actor" % "2.3.9"
 )
