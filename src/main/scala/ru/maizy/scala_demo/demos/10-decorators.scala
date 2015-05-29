@@ -81,6 +81,7 @@ class DecoratorsDemo extends Demo {
     object TestObjWithImplicit {
       def simpleWithPrefixer(s: String)(implicit p: Prefixer): String = s"[${p.prefix}] s: $s"
       def describeWithPrefixer(a: String, b: String)(implicit p: Prefixer): String = s"[${p.prefix}] a: $a, b: $b"
+      def curriedDescribeWithPrefixer(a: String, b: String)(p: Prefixer): String = s"[${p.prefix}] a: $a, b: $b"
     }
 
     demoBlock("decorate method with implicits") {
@@ -94,9 +95,12 @@ class DecoratorsDemo extends Demo {
       println(TestObjWithImplicit.describeWithPrefixer("rabbit", "jump")(otherPrefixer))
 
       val func: (String, String) => String = TestObjWithImplicit.describeWithPrefixer
-      //why not val func: Prefixer => ((String, String) => String)?
+      //why not `val func: (String, String) => Prefixer => String` ?
       println(func("bird", "fly"))
       //func("bird", "fly")(otherPrefixer) //how?
+
+      val curriedFunc: (String, String) => Prefixer => String =
+        TestObjWithImplicit.curriedDescribeWithPrefixer
     }
   }
 }
