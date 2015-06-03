@@ -99,6 +99,9 @@ class DecoratorsDemo extends Demo {
       println(func("bird", "fly"))
       //func("bird", "fly")(otherPrefixer) //how?
 
+      //there isn't solution for that, because implicit params may exist only
+      //for methods
+
       val curriedFunc: (String, String) => Prefixer => String =
         TestObjWithImplicit.curriedDescribeWithPrefixer
     }
