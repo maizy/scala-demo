@@ -40,9 +40,17 @@ object Launcher extends App {
     )
 
     if (args.length > 0) {
-      val num = args(0).toInt
-      println(s"Run demo #$num")
-      collection.run(num, settings)
+      args(0) match {
+        case n: String if n.matches("[0-9]+") => {
+          println(s"Run demo #$n")
+          collection.run(n.toInt, settings)
+        }
+        case name: String => demos.zipWithIndex.find{ case (d: Demo, i: Int) => d.name == name }
+          match {
+            case Some((_, num)) => collection.run(num, settings)
+            case None => println(s"Unable to find demo with name = $name")
+          }
+      }
     } else {
       print(demosLister(collection))
       print("Run demo #")

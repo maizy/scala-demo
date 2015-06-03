@@ -10,7 +10,8 @@ import ru.maizy.scala_demo.demoBlock
 import scala.collection.mutable
 
 class SeqProcessing extends Demo {
-  val name: String = "seq processing by functional code"
+  val name: String = "seq_processing"
+  override val description: String = "seq processing by functional code"
 
   def run(settings: Settings): Unit = {
     val sampleList = List("Ru", "En", "De")
@@ -28,7 +29,7 @@ class SeqProcessing extends Demo {
 
 class ArrayDemo extends Demo {
 
-  val name = "array examples"
+  val name = "array"
 
   def run(settings: Settings): Unit = {
     demoBlock("Array init") {
@@ -53,7 +54,7 @@ class ArrayDemo extends Demo {
 
 
 class ListDemo extends Demo {
-  val name = "list demo"
+  val name = "list"
 
   def run(settings: Settings): Unit = {
     demoBlock("init lists") {
@@ -71,7 +72,7 @@ class ListDemo extends Demo {
 }
 
 class ListMethods extends Demo {
-  val name = "list methods"
+  val name = "list_methods"
 
   def run(settings: Settings): Unit = {
     val rabbitNames = List(
@@ -101,7 +102,7 @@ class ListMethods extends Demo {
 
 
 class TuplesDemo extends Demo {
-  val name = "tuples demo"
+  val name = "tuples_demo"
 
   def run(settings: Settings): Unit = {
     demoBlock("tuples") {
@@ -117,7 +118,7 @@ class TuplesDemo extends Demo {
 
 
 class MapDemo extends Demo {
-  val name = "map demo"
+  val name = "map_demo"
 
   def run(settings: Settings): Unit = {
     //TODO: immutable map demos, foreach, map, for ...

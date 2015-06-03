@@ -9,7 +9,8 @@ import ru.maizy.scala_demo.demoBlock
 
 
 class PatternMatchingWithCaseClasses extends Demo {
-  val name: String = "Pattern matching + case classes"
+  val name: String = "pattern_matching"
+  override val description: String = "Pattern matching + case classes"
 
   private abstract class ParsedField(typeCode: String, cValue: String, subfield: Option[ParsedField] = None)
   {
