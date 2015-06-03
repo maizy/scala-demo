@@ -11,17 +11,11 @@ class DecoratorsDemo extends Demo {
   val name: String = "decorators"
 
   def run(settings: Settings) {
-    class Prefixer(implicit prefix: String)
+    class Prefixer(val prefix: String)
 
     object TestObj {
       def simple(s: String): String = s"s: $s"
       def describe(a: String, b: Int): String = s"a: $a, b: $b"
-    }
-
-    object TestObjWithImplicit {
-      def simpleWithPrefixer(s: String)(implicit p: Prefixer): String = s"[$p] s: $s"
-      def describeWithPrefixer(a: String, b: String)(implicit p: Prefixer): String
-      = s"[$p] a: $a, b: $b"
     }
 
     class SimpleDecorator[I](
@@ -84,5 +78,32 @@ class DecoratorsDemo extends Demo {
       println(s"After decorate: ${multiArityDecorator("bebe", 10)}")
     }
 
+    object TestObjWithImplicit {
+      def simpleWithPrefixer(s: String)(implicit p: Prefixer): String = s"[${p.prefix}] s: $s"
+      def describeWithPrefixer(a: String, b: String)(implicit p: Prefixer): String = s"[${p.prefix}] a: $a, b: $b"
+      def curriedDescribeWithPrefixer(a: String, b: String)(p: Prefixer): String = s"[${p.prefix}] a: $a, b: $b"
+    }
+
+    demoBlock("decorate method with implicits") {
+      implicit val prefixer = new Prefixer("implicit prefix")
+      val otherPrefixer = new Prefixer("other prefix")
+
+      //direct call
+      println(TestObjWithImplicit.describeWithPrefixer("rabbit", "jump"))
+
+      //direct call with explicit param
+      println(TestObjWithImplicit.describeWithPrefixer("rabbit", "jump")(otherPrefixer))
+
+      val func: (String, String) => String = TestObjWithImplicit.describeWithPrefixer
+      //why not `val func: (String, String) => Prefixer => String` ?
+      println(func("bird", "fly"))
+      //func("bird", "fly")(otherPrefixer) //how?
+
+      //there isn't solution for that, because implicit params may exist only
+      //for methods
+
+      val curriedFunc: (String, String) => Prefixer => String =
+        TestObjWithImplicit.curriedDescribeWithPrefixer
+    }
   }
 }
