@@ -99,11 +99,11 @@ class StackableTraitDemo extends Demo {
 
     }
 
-    object ResourceWithImplicits {
+    object ResourceWithImplicits /* extends Resource[String, String]   :(  */ {
       def get(s: String)(implicit p: Prefixer): String = s"[${p.prefix}] s: $s"
     }
 
-    object WrappedResourceWithImplicits extends Resource[(String, Prefixer), String] {
+    class WrappedResourceWithImplicits extends Resource[(String, Prefixer), String] {
       def get(params: (String, Prefixer)): String =
         params match {
           case (s, p) => ResourceWithImplicits.get(s)(p)
