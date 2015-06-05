@@ -41,13 +41,12 @@ object Launcher extends App {
 
     if (args.length > 0) {
       args(0) match {
-        case n: String if n.matches("[0-9]+") => {
+        case n: String if n.matches("[0-9]+") =>
           println(s"Run demo #$n")
           collection.run(n.toInt, settings)
-        }
         case name: String => demos.zipWithIndex.find{ case (d: Demo, i: Int) => d.name == name }
           match {
-            case Some((_, num)) => collection.run(num, settings)
+            case Some((_, num)) => collection.run(num + 1, settings)
             case None => println(s"Unable to find demo with name = $name")
           }
       }
