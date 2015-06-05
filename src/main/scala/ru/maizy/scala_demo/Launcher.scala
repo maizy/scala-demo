@@ -33,6 +33,7 @@ object Launcher extends App {
     demos += new FutureChainsDemo
     demos += new RegexpDemo
     demos += new DecoratorsDemo
+    demos += new StackableTraitDemo
 
     val collection = new DemoCollection(
       demos.toList,
