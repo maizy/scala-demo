@@ -6,6 +6,8 @@ package ru.maizy.scala_demo.demos
  */
 import ru.maizy.scala_demo.{Demo, Settings, demoBlock}
 
+import scala.reflect.ClassTag
+
 
 class StackableTraitDemo extends Demo {
   val name: String = "stackable_traits"
@@ -37,7 +39,7 @@ class StackableTraitDemo extends Demo {
         override type Input = I
         override type Output = O
         private val cache = scala.collection.mutable.Map[String, Output]()
-        def computeKey(params: I): String
+        def computeKey(params: Input): String
         abstract override def get(params: Input): Output = {
           val key = computeKey(params)
           print(s"Get key=$key ")
@@ -109,5 +111,51 @@ class StackableTraitDemo extends Demo {
           case (s, p) => ResourceWithImplicits.get(s)(p)
         }
     }
+
+    demoBlock("ClassTag implicit convertion problem solve") {
+
+      object CacheStub {
+        def getAs[T](key: String)(implicit ct: ClassTag[T]): Option[T] = {
+          None //Stub
+        }
+      }
+
+      abstract class Resource2[I, O] (someDependancy: String)  {
+        type Input = I
+        type Output = O
+        def get(params: I): Output
+      }
+
+      trait ResourceCache[I, O] extends Resource2[I, O] {
+
+        override type Input = I
+        override type Output = O
+
+        implicit val ct: ClassTag[Output]
+
+        def ifNone(params: Input): Output
+
+        abstract override def get(params: Input): Output = {
+          val key = "..."
+          CacheStub.getAs[Output](key).getOrElse[Output](ifNone(params))
+        }
+      }
+
+      class MyResourceBase(dependancy: String) extends Resource2[Int, Double](dependancy) {
+        override def get(params: Int): Double = params.toDouble
+      }
+
+      class MyResourceExtended(dependancy: String, implicit val ct: ClassTag[Double])
+          extends MyResourceBase(dependancy) with ResourceCache[Int, Double] {
+        override def ifNone(params: Int): Double = (params * 2).toDouble
+      }
+
+      val simple = new MyResourceBase("simple")
+      println(s"simple: ${simple.get(5)}")
+
+      val adv = new MyResourceExtended("adv", ClassTag[Double](Double.getClass))
+      println(s"adv: ${adv.get(5)}")
+    }
   }
+
 }
