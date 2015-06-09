@@ -145,7 +145,7 @@ class StackableTraitDemo extends Demo {
         override def get(params: Int): Double = params.toDouble
       }
 
-      class MyResourceExtended(dependancy: String, implicit val ct: ClassTag[Double])
+      class MyResourceExtended(dependancy: String)(implicit val ct: ClassTag[Double])
           extends MyResourceBase(dependancy) with ResourceCache[Int, Double] {
         override def ifNone(params: Int): Double = (params * 2).toDouble
       }
@@ -153,7 +153,7 @@ class StackableTraitDemo extends Demo {
       val simple = new MyResourceBase("simple")
       println(s"simple: ${simple.get(5)}")
 
-      val adv = new MyResourceExtended("adv", ClassTag[Double](Double.getClass))
+      val adv = new MyResourceExtended("adv")
       println(s"adv: ${adv.get(5)}")
     }
   }
