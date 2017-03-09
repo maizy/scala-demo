@@ -9,6 +9,6 @@ class Settings { //TODO: extends Configs
   val someOtherComplexSetting = s"Some: $someSetting"
 
   override def toString = s"Settings:\nsomeSetting:"+
-    "${someSetting}\n...\n" //TODO: dump all values?
+    s"$someSetting\n...\n" //TODO: dump all values?
 
 }

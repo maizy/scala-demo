@@ -13,7 +13,7 @@ trait FuturesDemoData {
   class MyError(msg: String) extends Exception(msg)
   class MyError2(msg: String) extends Exception(msg)
 
-  def sleep(sec: Double): Unit = {Thread.sleep((sec * 1000).toInt)}
+  def sleep(sec: Double): Unit = {Thread.sleep((sec * 1000).toLong)}
 
   def universalCallbackBuilder(label: String = ""): PartialFunction[Any, Unit] =
     {
@@ -79,7 +79,7 @@ class BasicFutureDemo extends Demo {
         }
 
         simpleFuture onSuccess universalCallbackBuilder("simpleFuture #1")
-        Await.result(simpleFuture, 2 seconds)
+        Await.result(simpleFuture, 2.seconds)
 
         val otherFuture: Future[Int] = Future {
           println("otherFuture compute")
@@ -92,7 +92,7 @@ class BasicFutureDemo extends Demo {
         otherFuture onSuccess universalCallbackBuilder("otherFuture #2") //callback order not garanted
         otherFuture onSuccess universalCallbackBuilder("otherFuture #3")
 
-        Await.result(otherFuture, 2 seconds)
+        Await.result(otherFuture, 2.seconds)
 
         Future {
           println("some future starts")
@@ -127,7 +127,7 @@ class BasicFutureDemo extends Demo {
           case r => println(s"flatten res: $r")
         }
 
-        Await.ready(res, 2 seconds)
+        Await.ready(res, 2.seconds)
         sleep(sec = 0.5)
 
       }
@@ -237,7 +237,7 @@ class ErrorsInFutureDemo extends Demo {
         sleep(sec = 2)
 
         println("now burn!")
-        Await.result(fatalError, 2 seconds)
+        Await.result(fatalError, 2.seconds)
         println("end (never called)")
       }
 

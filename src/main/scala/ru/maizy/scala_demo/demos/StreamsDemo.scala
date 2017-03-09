@@ -13,8 +13,6 @@ class StreamsDemo extends Demo {
   override val description: String = "Streams and streams combinations"
 
   def run(settings: Settings): Unit = {
-    val list = List(1, 2, 3)
-
     def concatStreams(list: List[Int],
                       length: Option[Int]): Stream[Int] = {
 
@@ -50,5 +48,9 @@ class StreamsDemo extends Demo {
     }
 
   }
+}
+
+object StreamsDemo {
+
 }
 

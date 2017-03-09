@@ -75,7 +75,7 @@ class DecoratorsDemo extends Demo {
       )
 
       println(s"Before decorate: ${TestObj.describe("bebe", 10)}")
-      println(s"After decorate: ${multiArityDecorator("bebe", 10)}")
+      println(s"After decorate: ${multiArityDecorator(("bebe", 10))}")
     }
 
     object TestObjWithImplicit {

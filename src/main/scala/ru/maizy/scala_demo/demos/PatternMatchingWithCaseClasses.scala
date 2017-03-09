@@ -1,12 +1,11 @@
 package ru.maizy.scala_demo.demos
+
 /**
  * Copyright (c) Nikita Kovaliov, maizy.ru, 2013
  * See LICENSE.txt for details.
  */
 
 import ru.maizy.scala_demo.{Settings, Demo}
-import ru.maizy.scala_demo.demoBlock
-
 
 class PatternMatchingWithCaseClasses extends Demo {
   val name: String = "pattern_matching"
@@ -42,7 +41,7 @@ class PatternMatchingWithCaseClasses extends Demo {
       case Name(v, _) => s"$v [:lastname:]"
       case LastName(v, Some(Name(v2, None))) => s"[~ $v2] $v"
       //case LastName(v, Some(p: Name)) => s"[~ ${p.value}] $v"
-      case LastName(v, _) => "[:firstname:] $v"
+      case LastName(v, _) => s"[:firstname:] $v"
       case _ => "[?]"
     }
 
