@@ -50,7 +50,41 @@ class StreamsDemo extends Demo {
   }
 }
 
-object StreamsDemo {
+class StreamsWithSkips extends Demo {
+  override def name: String = "stream with skips"
 
+  override def run(settings: Settings): Unit = {
+    import scala.annotation.tailrec
+
+    @tailrec
+    def nextStep(
+        iter: Iterator[Int], someAcc: List[Int]): (Stream[Int], Iterator[Int], List[Int]) = {
+      if (iter.hasNext) {
+        val i = iter.next()
+          // emulate some window function computation
+          val newAcc = (i / 2) :: someAcc
+          val windowValue = newAcc.sum
+
+          // skip some items before a window function match some condition
+          if (windowValue > 10000) {
+            (Stream(i), iter, List.empty)
+          } else {
+            nextStep(iter, newAcc)
+          }
+      } else {
+        (Stream.empty, iter, someAcc)
+      }
+    }
+
+
+    def mkStream(seq: Iterator[Int], someAcc: List[Int]): Stream[Int] = {
+      val (res, tail, newAcc) = nextStep(seq, someAcc)
+      res append mkStream(tail, newAcc)
+    }
+
+    val iterator = (1 to 10000000).toIterator
+    println(mkStream(iterator, List.empty).take(100).toList.mkString(","))
+
+  }
 }
 

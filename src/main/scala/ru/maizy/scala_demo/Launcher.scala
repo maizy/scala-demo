@@ -5,38 +5,38 @@ package ru.maizy.scala_demo
  */
 
 import ru.maizy.scala_demo.demos._
-import scala.collection.mutable.ListBuffer
 
 object Launcher extends App {
   println("Scala-demo v.0.1\n") // TODO: use const for version
 
   val settings = new Settings()
 
-  val demos = new ListBuffer[Demo]
-
-  demos += new PrintSettings
-  demos += new PrintDate
-  demos += new SeqProcessing
-  demos += new ArrayDemo
-  demos += new ListDemo
-  demos += new ListMethods
-  demos += new TuplesDemo
-  demos += new MapDemo
-  demos += new SetImmuttableDemo
-  demos += new SetMuttableDemo
-  demos += new ForAndYield
-  demos += new StreamsDemo
-  demos += new PartialFunctionsDemo
-  demos += new BasicFutureDemo
-  demos += new ErrorsInFutureDemo
-  demos += new FutureChainsDemo
-  demos += new RegexpDemo
-  demos += new DecoratorsDemo
-  demos += new StackableTraitDemo
-  demos += new PubSubDemo
+  val demos = List(
+    new PrintSettings,
+    new PrintDate,
+    new SeqProcessing,
+    new ArrayDemo,
+    new ListDemo,
+    new ListMethods,
+    new TuplesDemo,
+    new MapDemo,
+    new SetImmuttableDemo,
+    new SetMuttableDemo,
+    new ForAndYield,
+    new StreamsDemo,
+    new PartialFunctionsDemo,
+    new BasicFutureDemo,
+    new ErrorsInFutureDemo,
+    new FutureChainsDemo,
+    new RegexpDemo,
+    new DecoratorsDemo,
+    new StackableTraitDemo,
+    new PubSubDemo,
+    new StreamsWithSkips
+  )
 
   val collection = new DemoCollection(
-    demos.toList,
+    demos,
     (1 to demos.length + 2).toIterator
   )
 
