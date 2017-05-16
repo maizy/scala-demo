@@ -13,7 +13,7 @@ import ru.maizy.scala_demo.{ Demo, Settings, demoBlock }
 class PubSubDemo extends Demo {
   val name: String = "pub sub demo"
 
-  def run(settings: Settings) {
+  def run(settings: Settings): Unit = {
     demoBlock("pub sub demo") {
       sealed abstract class Event {
         def uid: String

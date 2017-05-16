@@ -13,7 +13,7 @@ class PrintDate extends Demo {
 
   def run(settings: Settings): Unit = {
     println(new Date().toString)
-    //TODO: is there any dateTime lib for scala, better than java std lib?
+    // TODO: is there any dateTime lib for scala, better than java std lib?
   }
 }
 

@@ -7,5 +7,5 @@ package ru.maizy.scala_demo
 trait Demo {
   def name: String
   def description: String = ""
-  def run(settings: Settings) : Unit
+  def run(settings: Settings): Unit
 }

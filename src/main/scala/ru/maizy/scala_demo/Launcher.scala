@@ -11,7 +11,7 @@ object Launcher extends App {
 
   val settings = new Settings()
 
-  val demos = List(
+  val collection = new DemoCollection(
     new PrintSettings,
     new PrintDate,
     new SeqProcessing,
@@ -35,25 +35,25 @@ object Launcher extends App {
     new StreamsWithSkips
   )
 
-  val collection = new DemoCollection(
-    demos,
-    (1 to demos.length + 2).toIterator
-  )
-
-  if (args.length > 0) {
-    args(0) match {
+  def runDemo(spec: String): Unit = {
+    val res = spec match {
       case n: String if n.matches("[0-9]+") =>
         println(s"Run demo #$n")
         collection.run(n.toInt, settings)
-      case name: String => demos.zipWithIndex.find{ case (d: Demo, i: Int) => d.name == name }
-        match {
-          case Some((_, num)) => collection.run(num + 1, settings)
-          case None => println(s"Unable to find demo with name = $name")
-        }
+      case name: String =>
+        collection.run(name, settings)
     }
+
+    res match {
+      case Left(error) => Console.err.println(error)
+      case _ =>
+    }
+  }
+
+  if (args.length > 0) {
+    runDemo(args(0))
   } else {
-    print(demosLister(collection))
-    print("Run demo #")
-    collection.run(scala.io.StdIn.readInt(), settings)
+    print(DemoCollection.demosLister(collection))
+    runDemo(scala.io.StdIn.readLine(text = "Run demo [# or name]: "))
   }
 }

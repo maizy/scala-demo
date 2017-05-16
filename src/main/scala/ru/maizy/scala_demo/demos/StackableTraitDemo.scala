@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 class StackableTraitDemo extends Demo {
   val name: String = "stackable_traits"
 
-  def run(settings: Settings) {
+  def run(settings: Settings): Unit = {
     class Prefixer(val prefix: String)
 
     abstract class Resource[I, O] {
@@ -82,7 +82,7 @@ class StackableTraitDemo extends Demo {
         override def computeKey(params: String): String = s"cache3.$params"
       }
 
-      def testResource(resource: Resource[String, String]) {
+      def testResource(resource: Resource[String, String]): Unit = {
         Seq(
           () => s"== Test ${resource.getClass}} ==",
           () => "get a",
@@ -101,7 +101,8 @@ class StackableTraitDemo extends Demo {
 
     }
 
-    object ResourceWithImplicits /* extends Resource[String, String]   :(  */ {
+    // ... extends Resource[String, String]
+    object ResourceWithImplicits{
       def get(s: String)(implicit p: Prefixer): String = s"[${p.prefix}] s: $s"
     }
 
@@ -116,7 +117,7 @@ class StackableTraitDemo extends Demo {
 
       object CacheStub {
         def getAs[T](key: String)(implicit ct: ClassTag[T]): Option[T] = {
-          None //Stub
+          None // Stub
         }
       }
 
@@ -146,7 +147,9 @@ class StackableTraitDemo extends Demo {
       }
 
       class MyResourceExtended(dependancy: String)(implicit val ct: ClassTag[Double])
-          extends MyResourceBase(dependancy) with ResourceCache[Int, Double] {
+        extends MyResourceBase(dependancy)
+        with ResourceCache[Int, Double]
+      {
         override def ifNone(params: Int): Double = (params * 2).toDouble
       }
 

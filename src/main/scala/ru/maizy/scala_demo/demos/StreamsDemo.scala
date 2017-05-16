@@ -13,17 +13,20 @@ class StreamsDemo extends Demo {
   override val description: String = "Streams and streams combinations"
 
   def run(settings: Settings): Unit = {
-    def concatStreams(list: List[Int],
-                      length: Option[Int]): Stream[Int] = {
+    def concatStreams(list: List[Int], length: Option[Int]): Stream[Int] = {
 
       def infStream(i: Int, step: Int = 0): Stream[Int] = {
         println(s"Evaluate $i, step: $step")
-        if (length.isDefined && step == length.get) Stream.empty
-        else i #:: infStream(i, step + 1)
+        if (length.isDefined && step == length.get) {
+          Stream.empty
+        } else {
+          i #:: infStream(i, step + 1)
+        }
       }
 
-      if (list.isEmpty) Stream.empty
-      else {
+      if (list.isEmpty){
+        Stream.empty
+      } else {
         val streams = for {
           x <- list.toStream
         } yield infStream(x)

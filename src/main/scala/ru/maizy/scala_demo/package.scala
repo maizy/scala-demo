@@ -5,29 +5,7 @@ package ru.maizy
  */
 
 package object scala_demo {
-  def demosLister(collection: DemoCollection): String = {
-    if (collection.length == 0) {
-      "Collection is empty"
-    } else {
-      val prefix = " "
-      val descriptionPrefix = " " * 6
-      def describeDemo(num :Int, demo: Demo) : String = {
-        var res = s"$prefix $num. ${demo.name}"
-        if (demo.description.length > 0)
-          res += s"\n$descriptionPrefix(${demo.description})"
-        res
-      }
-
-      //TODO: refactor in functional way
-      var report = ""
-      for((i, demo) <- collection.numeratedDemos) {
-        report += describeDemo(i, demo) + "\n"
-      }
-      report
-    }
-  }
-
-  def demoBlock(name: Option[String])(blockBody: => Unit) {
+  def demoBlock(name: Option[String])(blockBody: => Unit): Unit = {
     val div = "-" * 15
     if (name.isDefined) {
       println(div)
@@ -42,11 +20,11 @@ package object scala_demo {
     println()
   }
 
-  def demoBlock(blockBody: => Unit) {
+  def demoBlock(blockBody: => Unit): Unit = {
     demoBlock(None)(blockBody)
   }
 
-  def demoBlock(name: String)(blockBody: => Unit) {
+  def demoBlock(name: String)(blockBody: => Unit): Unit = {
     demoBlock(Some(name))(blockBody)
   }
 }

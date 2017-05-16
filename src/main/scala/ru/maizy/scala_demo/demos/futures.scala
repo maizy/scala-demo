@@ -24,15 +24,15 @@ trait FuturesDemoData {
   val universalCallback: PartialFunction[Any, Unit] = universalCallbackBuilder()
 
   def myErrorCallbackBuilder(label: String): PartialFunction[Throwable, Unit] = {
-      case e: MyError => println(s"$label: My error catched: $e")
-    }
+    case e: MyError => println(s"$label: My error catched: $e")
+  }
 
   val intWithConditions: PartialFunction[Int, Unit] = {
-    case i if i >= 4 => println(s"Int: >=4 - $i")
+    case i: Int if i >= 4 => println(s"Int: >=4 - $i")
   }
 
   val alwaysMatchCallback: PartialFunction[Any, Unit] = {
-    case other => println(s"Ooops catch something unknown: $other")
+    case other: Any => println(s"Ooops catch something unknown: $other")
   }
 }
 
@@ -47,14 +47,15 @@ class PartialFunctionsDemo extends Demo {
 
       demoBlock("partial functions") {
 
-        println(s"intCallback.isDefinedAt(7)=${intWithConditions.isDefinedAt(7)}") //true
-        println(s"intCallback.isDefinedAt(0)=${intWithConditions.isDefinedAt(0)}") //false
-        //println(s"intCallback.isDefinedAt(string)=${intWithConditions.isDefinedAt("string")}")  //compile error: type missmatch
+        println(s"intCallback.isDefinedAt(7)=${intWithConditions.isDefinedAt(7)}") // true
+        println(s"intCallback.isDefinedAt(0)=${intWithConditions.isDefinedAt(0)}") // false
+        // println(s"intCallback.isDefinedAt(string)=${intWithConditions.isDefinedAt("string")}")
+        // => compile error: type missmatch
 
-        //PartialFunction[Any, Unit] matching everything
-        println(s"universalCallback.isDefinedAt(7)=${universalCallback.isDefinedAt(7)}") //true
-        println(s"universalCallback.isDefinedAt(0)=${universalCallback.isDefinedAt(0)}") //false
-        println(s"universalCallback.isDefinedAt(some string)=${universalCallback.isDefinedAt("some string")}") //false
+        // PartialFunction[Any, Unit] matching everything
+        println(s"universalCallback.isDefinedAt(7)=${universalCallback.isDefinedAt(7)}") // true
+        println(s"universalCallback.isDefinedAt(0)=${universalCallback.isDefinedAt(0)}") // false
+        println(s"universalCallback.isDefinedAt(some string)=${universalCallback.isDefinedAt("some string")}") // false
       }
     }
   }
@@ -88,8 +89,8 @@ class BasicFutureDemo extends Demo {
           3
         }
 
-        otherFuture onSuccess universalCallbackBuilder("otherFuture #1") //multiple callbacks allowed
-        otherFuture onSuccess universalCallbackBuilder("otherFuture #2") //callback order not garanted
+        otherFuture onSuccess universalCallbackBuilder("otherFuture #1") // multiple callbacks allowed
+        otherFuture onSuccess universalCallbackBuilder("otherFuture #2") // callback order not garanted
         otherFuture onSuccess universalCallbackBuilder("otherFuture #3")
 
         Await.result(otherFuture, 2.seconds)
@@ -119,12 +120,12 @@ class BasicFutureDemo extends Demo {
 
         val res: Future[Seq[Seq[Res]]] = Future.sequence(List(f1, f2))
         res onSuccess {
-          case r => println(s"r: $r, r.flatten: ${r.flatten}")
+          case r: Any => println(s"r: $r, r.flatten: ${r.flatten}")
         }
 
-        val flatRes: Future[Seq[Res]] = res map { case r => r.flatten}
+        val flatRes: Future[Seq[Res]] = res map { _.flatten }
         flatRes onSuccess {
-          case r => println(s"flatten res: $r")
+          case r: Any => println(s"flatten res: $r")
         }
 
         Await.ready(res, 2.seconds)
@@ -151,10 +152,10 @@ class ErrorsInFutureDemo extends Demo {
           throw new MyError("zooo")
         }
 
-        errorFuture onSuccess universalCallbackBuilder("errorFuture") //never calls
+        errorFuture onSuccess universalCallbackBuilder("errorFuture") // never calls
         errorFuture onFailure myErrorCallbackBuilder("myError #1")
         errorFuture onFailure myErrorCallbackBuilder("myError #2")
-        errorFuture onFailure myErrorCallbackBuilder("myError #3") //callback order not garanted
+        errorFuture onFailure myErrorCallbackBuilder("myError #3") // callback order not garanted
 
         errorFuture onFailure universalCallbackBuilder("errorFuture onFailure2")
 
@@ -191,7 +192,7 @@ class ErrorsInFutureDemo extends Demo {
         def processAsyncResAndError(f: Future[String]) = {
           f recover {
             case e: MyException => s"Error: $e"
-            case e => s"Unexpected Error: $e"
+            case e: Any => s"Unexpected Error: $e"
           } map (r => sendResponse(new Response(s"result 2: $r")))
         }
 
@@ -241,7 +242,7 @@ class ErrorsInFutureDemo extends Demo {
         println("end (never called)")
       }
 
-      //TODO: create execution context and test catching some errors
+      // TODO: create execution context and test catching some errors
     }
   }
 }
@@ -259,12 +260,11 @@ class FutureChainsDemo extends Demo {
       val firstLevelSuccessfulFuture: Future[String] = Future.successful("ok")
       val firstLevelFailedFuture: Future[String] = Future.failed(new MyError("oh, no!"))
 
-      def printFutureResults(label: String): PartialFunction[Any, Unit] =
-        {
-          case res => println(s"$label: $res")
-        }
+      def printFutureResults(label: String): PartialFunction[Any, Unit] = {
+        case res: Any => println(s"$label: $res")
+      }
 
-      def showResults[T](func: (Future[String] => Future[T])) {
+      def showResults[T](func: (Future[String] => Future[T])): Unit = {
         val secondLevelSuccessful: Future[T] = func(firstLevelSuccessfulFuture)
         val secondLevelFailure: Future[T] = func(firstLevelFailedFuture)
         secondLevelSuccessful onComplete printFutureResults("3rd level successful")
@@ -273,12 +273,8 @@ class FutureChainsDemo extends Demo {
 
       demoBlock("transform") {
       val processFuture = (f: Future[String]) => f transform(
-        {
-          case res: String => Res(res)
-        },
-        {
-          case e: Throwable => new Exception(s"Overwrited exc, original exceptin was: $e")
-        }
+        (res: String) => Res(res),
+        (e: Throwable) => new Exception(s"Overwrited exc, original exceptin was: $e")
       )
 
         showResults(processFuture)
@@ -287,12 +283,8 @@ class FutureChainsDemo extends Demo {
 
       demoBlock("transform with exceptions inside") {
         val processFuture = (f: Future[String]) => f transform(
-          {
-            case res: String => throw new Exception("Unexcpected exception in success transform")
-          },
-          {
-            case e: Throwable => new Exception(s"Overwrited exc, original exceptin was: $e")
-          }
+          (res: String) => throw new Exception("Unexcpected exception in success transform"),
+          (e: Throwable) => new Exception(s"Overwrited exc, original exceptin was: $e")
         )
 
         showResults(processFuture)
@@ -300,9 +292,7 @@ class FutureChainsDemo extends Demo {
       }
 
       demoBlock("map") {
-        val processFuture = (f: Future[String]) => f map {
-          case res: String => Res(res)
-        }
+        val processFuture = (f: Future[String]) => f map Res.apply
 
         // Exceptions passed to future chain without processing
         showResults(processFuture)
@@ -311,7 +301,7 @@ class FutureChainsDemo extends Demo {
 
       demoBlock("map with exception inside") {
         val processFuture = (f: Future[String]) => f map {
-          case res: String => throw new Exception("Unexcpected exception in success transform")
+          _ => throw new Exception("Unexcpected exception in success transform")
         }
 
         // Exceptions passed to future chain without processing
@@ -321,7 +311,7 @@ class FutureChainsDemo extends Demo {
 
       demoBlock("flatMap") {
         val processFuture = (f: Future[String]) => f flatMap {
-          //instead of map should return Future[A]
+          // instead of map should return Future[A]
           res => Future.successful(Res(res + res))
         }
 

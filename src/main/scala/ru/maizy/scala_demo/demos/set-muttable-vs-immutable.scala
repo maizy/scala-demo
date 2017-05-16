@@ -17,7 +17,7 @@ class SetImmuttableDemo extends Demo {
     demoBlock("immutable set manipulation") {
       var s = immutable.Set("One", "Two")
       println(s"s: $s")
-      s += "Three" //just a alias for s = s + "Three", it's a new Set!
+      s += "Three" // just a alias for s = s + "Three", it's a new Set!
       println(s"s: $s")
     }
   }
@@ -28,7 +28,7 @@ class SetMuttableDemo extends Demo {
 
   def run(settings: Settings): Unit = {
     demoBlock("") {
-      //the same code, but val & mutable set
+      // the same code, but val & mutable set
       val s = mutable.Set("One", "Two")
       println(s"s: $s")
       s += "Three"

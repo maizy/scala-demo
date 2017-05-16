@@ -10,7 +10,7 @@ import ru.maizy.scala_demo.demoBlock
 class DecoratorsDemo extends Demo {
   val name: String = "decorators"
 
-  def run(settings: Settings) {
+  def run(settings: Settings): Unit = {
     class Prefixer(val prefix: String)
 
     object TestObj {
@@ -21,10 +21,11 @@ class DecoratorsDemo extends Demo {
     class SimpleDecorator[I](
         val postfix: String,
         val func: (I) => String,
-        val keyFunc: (I) => String  //to demonstrate other internal usage of params
-                                    //ex: computer cache key
-                              ) {
-      def apply(params: I): String =  {
+        // to demonstrate other internal usage of params
+        // ex: computer cache key
+        val keyFunc: (I) => String
+    ) {
+      def apply(params: I): String = {
         val key = keyFunc(params)
         s"[${func(params)}]=$postfix (call with key=$key)"
       }
@@ -32,7 +33,7 @@ class DecoratorsDemo extends Demo {
 
     demoBlock("simple decorator for arity=1") {
 
-      val func: (String => String) = TestObj.simple //just to demonstrate type
+      val func: (String => String) = TestObj.simple // just to demonstrate type
 
       val simpleDecorated = new SimpleDecorator[String](
         postfix = "bar",
@@ -59,7 +60,7 @@ class DecoratorsDemo extends Demo {
     }
 
     demoBlock("simple decorator with arity>1") {
-      //types:
+      // types:
       val func: (String, Int) => String = TestObj.describe
 
       val funcTupled: (Tuple2[String, Int] => String) = func.tupled
@@ -88,19 +89,19 @@ class DecoratorsDemo extends Demo {
       implicit val prefixer = new Prefixer("implicit prefix")
       val otherPrefixer = new Prefixer("other prefix")
 
-      //direct call
+      // direct call
       println(TestObjWithImplicit.describeWithPrefixer("rabbit", "jump"))
 
-      //direct call with explicit param
+      // direct call with explicit param
       println(TestObjWithImplicit.describeWithPrefixer("rabbit", "jump")(otherPrefixer))
 
       val func: (String, String) => String = TestObjWithImplicit.describeWithPrefixer
-      //why not `val func: (String, String) => Prefixer => String` ?
+      // why not `val func: (String, String) => Prefixer => String` ?
       println(func("bird", "fly"))
-      //func("bird", "fly")(otherPrefixer) //how?
+      // func("bird", "fly")(otherPrefixer) //how?
 
-      //there isn't solution for that, because implicit params may exist only
-      //for methods
+      // there isn't solution for that, because implicit params may exist only
+      // for methods
 
       val curriedFunc: (String, String) => Prefixer => String =
         TestObjWithImplicit.curriedDescribeWithPrefixer

@@ -13,8 +13,8 @@ class PatternMatchingWithCaseClasses extends Demo {
 
   private abstract class ParsedField(typeCode: String, cValue: String, subfield: Option[ParsedField] = None)
   {
-    val value = cValue
-    override def toString = {s"<$typeCode: value=$value, subfield=$subfield>"}
+    val value: String = cValue
+    override def toString: String = {s"<$typeCode: value=$value, subfield=$subfield>"}
   }
   private case class Name (name: String, posibleLastName: Option[ParsedField] = None)
     extends ParsedField("name", name, posibleLastName)
@@ -24,23 +24,23 @@ class PatternMatchingWithCaseClasses extends Demo {
 
   def run(settings: Settings): Unit = {
 
-    ////любое значение + любое значение, где v1=v2 => просто значение (strip duplicates)
-    //any(any1(any2 -> if any1.v == any2.v - strip internal dublicates
-    //идея - что это рез-ты парсинга и там есть field + posibleLinkedField
-    //закрыть вариант field(pos(pos...))
-    //но оставить вариант field(pos1(pos2(None)) если pos1.v == pos2.v и pos1.class == pos2.class
-    //сделать варианты имя + возможно фамилия
-    //фамилия + возможно имя
-    //год + имя или фамилия => ошибка
-    //любое значение + любое значение, где v1=v2 => просто значение (strip duplicates)
-    //сделать тесты
-    //сделать вариант с if/else
-    //сравнить скорость
+    // //любое значение + любое значение, где v1=v2 => просто значение (strip duplicates)
+    // any(any1(any2 -> if any1.v == any2.v - strip internal dublicates
+    // идея - что это рез-ты парсинга и там есть field + posibleLinkedField
+    // закрыть вариант field(pos(pos...))
+    // но оставить вариант field(pos1(pos2(None)) если pos1.v == pos2.v и pos1.class == pos2.class
+    // сделать варианты имя + возможно фамилия
+    // фамилия + возможно имя
+    // год + имя или фамилия => ошибка
+    // любое значение + любое значение, где v1=v2 => просто значение (strip duplicates)
+    // сделать тесты
+    // сделать вариант с if/else
+    // сравнить скорость
 
     def fullNameMatcher(field: ParsedField) = field match {
       case Name(v, _) => s"$v [:lastname:]"
       case LastName(v, Some(Name(v2, None))) => s"[~ $v2] $v"
-      //case LastName(v, Some(p: Name)) => s"[~ ${p.value}] $v"
+      // case LastName(v, Some(p: Name)) => s"[~ ${p.value}] $v"
       case LastName(v, _) => s"[:firstname:] $v"
       case _ => "[?]"
     }
@@ -53,12 +53,12 @@ class PatternMatchingWithCaseClasses extends Demo {
 //    demoBlock("1. pattern match on case class") {
 //      variants.
 //    }
-    //FIXME realize
+// FIXME realize
 
   }
 }
 
-//TODO: other pattern types
+// TODO: other pattern types
 // + Option
 // + sealed
 // + @ensure

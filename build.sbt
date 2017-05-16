@@ -21,5 +21,14 @@ scalacOptions ++= Seq(
   "-Ywarn-nullary-override",
   "-Ywarn-nullary-unit",
   "-Ywarn-numeric-widen"
-  //"-Ywarn-unused"
+  // "-Ywarn-unused",
+  // "-Ywarn-value-discard"
 )
+
+
+(test in Test) := {
+  org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Test).toTask("").value
+  org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value
+  (test in Test).value
+}
+scalastyleFailOnError := true

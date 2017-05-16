@@ -33,17 +33,16 @@ class ArrayDemo extends Demo {
 
   def run(settings: Settings): Unit = {
     demoBlock("Array init") {
-      //arrays are muttable, but fixed in size
+      // arrays are muttable, but fixed in size
       val stations = new Array[String](3)
       stations(0) = "Krukovo"
       stations(1) = "Malino"
       stations(2) = "Firsanovskaya"
-      //not a preffer way to init Array, just for demonstation
+      // not a preffer way to init Array, just for demonstation
 
-      //TODO: ex of preffer way
+      // TODO: ex of preffer way
 
-      def printStations() = println(
-        "Stations: " + stations.toList.mkString(", "))
+      def printStations() = println("Stations: " + stations.toList.mkString(", "))
 
       printStations()
       stations(2) = "Himki"
@@ -61,9 +60,9 @@ class ListDemo extends Demo {
       val listOne = List("jan", "feb")
       val listTwo = List("apr", "may")
 
-      println(listOne ::: listTwo) //new list
+      println(listOne ::: listTwo) // new list
 
-      println("mar" :: listTwo) //prepend
+      println("mar" :: listTwo) // prepend
 
       val listThree = "jun" :: "jul" :: "aug" :: Nil
       println(listThree)
@@ -108,9 +107,9 @@ class TuplesDemo extends Demo {
     demoBlock("tuples") {
       val a = (1999, "N")
       println(a)
-      println(a._1 == 1999) //true, tuples 1-based !
+      println(a._1 == 1999) // true, tuples 1-based !
 
-      val (year, letter) = a //simple pattern matching. "(" & ")" required !
+      val (year, letter) = a // simple pattern matching. "(" & ")" required !
       println(s"Year: $year letter: $letter")
     }
   }
@@ -121,7 +120,7 @@ class MapDemo extends Demo {
   val name = "map_demo"
 
   def run(settings: Settings): Unit = {
-    //TODO: immutable map demos, foreach, map, for ...
+    // TODO: immutable map demos, foreach, map, for ...
     demoBlock("mutable map") {
       case class HumanReadable(eng: String)
       val mutableMap = mutable.Map[String, HumanReadable]()
