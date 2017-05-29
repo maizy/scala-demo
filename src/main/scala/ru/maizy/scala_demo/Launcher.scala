@@ -9,6 +9,14 @@ import ru.maizy.scala_demo.demos._
 object Launcher extends App {
   println("Scala-demo v.0.1\n") // TODO: use const for version
 
+  val demosDynamic = FindDemos.inPackages(
+    Seq(
+      "ru.maizy.scala_demo.demos",
+      "ru.maizy.scala_demo.demos.herding_cats"
+    )
+  )
+  println(demosDynamic)
+
   val settings = new Settings()
 
   val collection = new DemoCollection(

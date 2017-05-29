@@ -4,7 +4,10 @@ version := "0.0.1-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
-libraryDependencies += "com.typesafe" % "config" % "1.0.2"
+libraryDependencies ++= Seq(
+  "com.typesafe" % "config" % "1.0.2",
+  "org.clapper" %% "classutil" % "1.1.2"
+)
 
 scalacOptions ++= Seq(
   "-target:jvm-1.8",
