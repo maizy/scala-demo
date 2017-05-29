@@ -8,7 +8,7 @@ import ru.maizy.scala_demo.{Settings, Demo}
 import java.util.Date
 
 class PrintDate extends Demo {
-  val name = "print_date"
+  override val name = "print_date"
   override val description = "prints current date and time"
 
   def run(settings: Settings): Unit = {
@@ -18,7 +18,7 @@ class PrintDate extends Demo {
 }
 
 class PrintSettings extends Demo {
-  val name = "print_settings"
+  override val name = "print_settings"
 
   def run(settings: Settings): Unit = {
     println(s"Current settings is:\n$settings\n")

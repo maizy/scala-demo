@@ -37,7 +37,7 @@ trait FuturesDemoData {
 }
 
 class PartialFunctionsDemo extends Demo {
-  val name = "partial_function"
+  override val name = "partial_function"
 
   def run(settings: Settings): Unit = {
 
@@ -62,7 +62,7 @@ class PartialFunctionsDemo extends Demo {
 }
 
 class BasicFutureDemo extends Demo {
-  val name = "future_processing"
+  override val name = "future_processing"
 
   def run(settings: Settings): Unit = {
 
@@ -138,7 +138,7 @@ class BasicFutureDemo extends Demo {
 
 
 class ErrorsInFutureDemo extends Demo {
-  val name = "futures_errors"
+  override val name = "futures_errors"
   override val description = "Errors in Future & recovery"
 
   def run(settings: Settings): Unit = {
@@ -249,7 +249,7 @@ class ErrorsInFutureDemo extends Demo {
 
 
 class FutureChainsDemo extends Demo {
-  val name = "futures_chains"
+  override val name = "futures_chains"
 
   def run(settings: Settings): Unit = {
     new FuturesDemoData {

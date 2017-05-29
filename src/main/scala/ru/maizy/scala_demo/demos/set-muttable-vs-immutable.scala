@@ -11,7 +11,7 @@ import scala.collection.immutable
 import scala.collection.mutable
 
 class SetImmuttableDemo extends Demo {
-  val name = "set_immuttable"
+  override val name = "set_immuttable"
 
   def run(settings: Settings): Unit = {
     demoBlock("immutable set manipulation") {
@@ -24,7 +24,7 @@ class SetImmuttableDemo extends Demo {
 }
 
 class SetMuttableDemo extends Demo {
-  val name = "set_muttable"
+  override val name = "set_muttable"
 
   def run(settings: Settings): Unit = {
     demoBlock("") {

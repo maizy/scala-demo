@@ -9,7 +9,7 @@ import ru.maizy.scala_demo.demoBlock
 
 
 class StreamsDemo extends Demo {
-  val name: String = "streams"
+  override val name: String = "streams"
   override val description: String = "Streams and streams combinations"
 
   def run(settings: Settings): Unit = {

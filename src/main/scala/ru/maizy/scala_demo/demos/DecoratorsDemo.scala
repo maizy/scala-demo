@@ -8,7 +8,7 @@ import ru.maizy.scala_demo.demoBlock
 
 
 class DecoratorsDemo extends Demo {
-  val name: String = "decorators"
+  override val name: String = "decorators"
 
   def run(settings: Settings): Unit = {
     class Prefixer(val prefix: String)

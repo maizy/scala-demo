@@ -5,7 +5,8 @@ package ru.maizy.scala_demo
  */
 
 trait Demo {
-  def name: String
+  self =>
+  def name: String = self.getClass.getName
   def description: String = ""
   def run(settings: Settings): Unit
 }

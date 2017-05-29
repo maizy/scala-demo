@@ -9,7 +9,7 @@ import ru.maizy.scala_demo.demoBlock
 
 
 class ForAndYield extends Demo {
-  val name: String = "for_yeild"
+  override val name: String = "for_yeild"
   override val description: String = "for, list contructions with for + yield"
 
   def run(settings: Settings): Unit = {

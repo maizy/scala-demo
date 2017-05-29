@@ -10,7 +10,7 @@ import scala.reflect.ClassTag
 
 
 class StackableTraitDemo extends Demo {
-  val name: String = "stackable_traits"
+  override val name: String = "stackable_traits"
 
   def run(settings: Settings): Unit = {
     class Prefixer(val prefix: String)

@@ -10,7 +10,7 @@ import ru.maizy.scala_demo.demoBlock
 import scala.util.matching.Regex
 
 class RegexpDemo extends Demo {
-  val name: String = "regexp"
+  override val name: String = "regexp"
 
   def run(settings: Settings): Unit = {
     // rich string method
