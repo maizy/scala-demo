@@ -5,6 +5,7 @@ package ru.maizy.scala_demo
  */
 
 import ru.maizy.scala_demo.demos._
+import ru.maizy.scala_demo.herding_cats.Day0Polymorphism
 
 object Launcher extends App {
   println("Scala-demo v.0.1\n") // TODO: use const for version
@@ -32,7 +33,8 @@ object Launcher extends App {
     new DecoratorsDemo,
     new StackableTraitDemo,
     new PubSubDemo,
-    new StreamsWithSkips
+    new StreamsWithSkips,
+    new Day0Polymorphism
   )
 
   def runDemo(spec: String): Unit = {

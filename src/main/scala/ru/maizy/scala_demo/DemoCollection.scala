@@ -33,9 +33,16 @@ class DemoCollection {
   }
 
   def run(name: String, settings: Settings): Either[String, Unit] = {
-    _numeratedDemos.find { case (i: Int, d: Demo) => d.name == name } match {
-      case Some(pair) => run(pair._1, settings)
-      case None => Left(s"Unable to find demo with name = $name")
+    val matched = _numeratedDemos.filter {
+      case (i: Int, d: Demo) => d.name.contains(name) || d.getClass.getCanonicalName.contains(name)
+    }
+
+    if (matched.isEmpty) {
+      Left(s"Unable to find demo with name = $name")
+    } else if (matched.size > 1) {
+      Left(s"Ambiguous demos with name $name")
+    } else {
+      run(matched.head._1, settings)
     }
   }
 }
